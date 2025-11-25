@@ -25,11 +25,11 @@ export async function launchDraw() {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
 
-    // 4. Envoi des emails (Circulaire)
-    const emailPromises = shuffled.map((giver, index) => {
+    // 4. Préparer les emails (Circulaire)
+    const emails = shuffled.map((giver, index) => {
       const receiver = shuffled[(index + 1) % shuffled.length];
 
-      return resend.emails.send({
+      return {
         from: "Secret Santa <contact@maketo.fr>", // À configurer avec un domaine vérifié
         to: giver.email,
         subject: "🎅 Ton tirage Secret Santa !",
@@ -41,10 +41,29 @@ export async function launchDraw() {
             <p>Chut, c'est un secret ! 🤫</p>
           </div>
         `,
-      });
+      };
     });
 
-    await Promise.all(emailPromises);
+    // 5. Envoi des emails en batch (évite la limite de taux de 2 emails/seconde)
+    const { data, error } = await resend.batch.send(emails);
+
+    if (error) {
+      console.error("Erreur envoi batch:", error);
+      return {
+        success: false,
+        message: "Une erreur s'est produite lors de l'envoi des emails.",
+      };
+    }
+
+    // Vérifier si certains emails ont échoué
+    const failedEmails = data?.data?.filter((result) => "error" in result) ?? [];
+    if (failedEmails.length > 0) {
+      console.error("Certains emails ont échoué:", failedEmails);
+      return {
+        success: false,
+        message: `${failedEmails.length} email(s) n'ont pas pu être envoyés.`,
+      };
+    }
 
     return {
       success: true,
