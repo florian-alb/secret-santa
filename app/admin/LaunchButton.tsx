@@ -1,25 +1,33 @@
-'use client'
+"use client";
 
-import { launchDraw } from '@/app/actions/draw'
-import { useState } from 'react'
+import { launchDraw } from "@/app/actions/draw";
+import { useState } from "react";
 
 export function LaunchButton() {
-  const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState<{success: boolean, message: string} | null>(null)
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   const handleLaunch = async () => {
-    if (!confirm("Êtes-vous sûr de vouloir lancer le tirage ? C'est parti pour de bon !")) return
+    if (
+      !confirm(
+        "Êtes-vous sûr de vouloir lancer le tirage ? C'est parti pour de bon !"
+      )
+    )
+      return;
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = await launchDraw()
-      setStatus(result)
+      const result = await launchDraw();
+      setStatus(result);
     } catch (e) {
-      setStatus({ success: false, message: "Erreur inattendue." })
+      setStatus({ success: false, message: `Erreur inattendue. ${e}` });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (status?.success) {
     return (
@@ -27,7 +35,7 @@ export function LaunchButton() {
         <h3 className="font-bold text-xl">Succès ! 🎉</h3>
         <p>{status.message}</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -42,9 +50,8 @@ export function LaunchButton() {
         disabled={loading}
         className="w-full bg-red-600 text-white text-xl font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
       >
-        {loading ? 'Lancement en cours...' : 'LANCER LE TIRAGE 🚀'}
+        {loading ? "Lancement en cours..." : "LANCER LE TIRAGE 🚀"}
       </button>
     </div>
-  )
+  );
 }
-

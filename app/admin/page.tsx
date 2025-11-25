@@ -1,5 +1,6 @@
 import { LaunchButton } from "./LaunchButton";
 import { DeleteButton } from "./DeleteButton";
+import { EditButton } from "./EditButton";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -98,7 +99,16 @@ export default async function AdminPage(props: {
                         })}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <DeleteButton id={p.id} name={p.name} />
+                        <div className="flex items-center justify-center gap-2">
+                          <EditButton
+                            participant={{
+                              id: p.id,
+                              name: p.name,
+                              email: p.email,
+                            }}
+                          />
+                          <DeleteButton id={p.id} name={p.name} />
+                        </div>
                       </td>
                     </tr>
                   ))}
